@@ -24,6 +24,7 @@ let db = new sqlite3.Database(db_filename, sqlite3.OPEN_READWRITE, (err) => {
     }
 });
 
+
 //EXAMPLE query
 //SELECT * FROM incidents WHERE date(date_time) >= '2022-05-29' AND code = 600 ORDER BY date_time DESC;
 //Selects all incidents for dates past 5/29/2022 with code 600 in descending order.
