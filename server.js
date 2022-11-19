@@ -33,14 +33,29 @@ let db = new sqlite3.Database(db_filename, sqlite3.OPEN_READWRITE, (err) => {
 app.get('/codes', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
 
-    res.status(200).type('json').send({}); // <-- you will need to change this
+    if(Object.entries(req.query).length === 0){
+        db.all('SELECT * FROM Codes', (err, rows) => {
+            //console.log(rows)
+            res.status(200).type('json').send(rows);
+        });
+    }else{
+        res.status(200).type('json').send({}); // <-- you will need to change this
+    }
 });
 
 // GET request handler for neighborhoods
 app.get('/neighborhoods', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
 
+    if(Object.entries(req.query).length === 0){
+        db.all('SELECT * FROM Neighborhoods ORDER BY neighborhood_number', (err, rows) => {
+            //console.log(rows)
+            res.status(200).type('json').send(rows);
+        });
+    }
+    else{
     res.status(200).type('json').send({}); // <-- you will need to change this
+    }
 });
 
 // GET request handler for crime incidents
