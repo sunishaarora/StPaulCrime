@@ -24,7 +24,7 @@ let db = new sqlite3.Database(db_filename, sqlite3.OPEN_READWRITE, (err) => {
     }
 });
 
-
+//TEST Change
 //EXAMPLE query
 //SELECT * FROM incidents WHERE date(date_time) >= '2022-05-29' AND code = 600 ORDER BY date_time DESC;
 //Selects all incidents for dates past 5/29/2022 with code 600 in descending order. 
@@ -33,22 +33,41 @@ let db = new sqlite3.Database(db_filename, sqlite3.OPEN_READWRITE, (err) => {
 app.get('/codes', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
     
+    if(Object.entries(req.query).length === 0){
+        db.all('SELECT * FROM Codes', (err, rows) => {
+            //console.log(rows)
+            res.status(200).type('json').send(rows);
+        });
+    }
+    else{
     res.status(200).type('json').send({}); // <-- you will need to change this
-});
+    }});
 
 // GET request handler for neighborhoods
 app.get('/neighborhoods', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
     
-    res.status(200).type('json').send({}); // <-- you will need to change this
-});
+    if(Object.entries(req.query).length === 0){
+        db.all('SELECT * FROM Neighborhoods ORDER BY neighborhood_number', (err, rows) => {
+            //console.log(rows)
+            res.status(200).type('json').send(rows);
+        });
+    }
+    else{
+        res.status(200).type('json').send({}); // <-- you will need to change this
+    }});
 
 // GET request handler for crime incidents
 app.get('/incidents', (req, res) => {
-    console.log(req.query); // query object (key-value pairs after the ? in the url)
-    
-    res.status(200).type('json').send({}); // <-- you will need to change this
-});
+    if(Object.entries(req.query).length === 0){
+        db.all('SELECT * FROM Neighborhoods ORDER BY neighborhood_number', (err, rows) => {
+            //console.log(rows)
+            res.status(200).type('json').send(rows);
+        });
+    }
+    else{
+        res.status(200).type('json').send({}); // <-- you will need to change this
+    }});
 
 // PUT request handler for new crime incident
 app.put('/new-incident', (req, res) => {
@@ -70,9 +89,11 @@ function databaseSelect(query, params) {
     return new Promise((resolve, reject) => {
         db.all(query, params, (err, rows) => {
             if (err) {
+                console.log('Error');
                 reject(err);
             }
             else {
+                console.log('Success');
                 resolve(rows);
             }
         })
