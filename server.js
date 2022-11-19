@@ -52,9 +52,41 @@ app.get('/incidents', (req, res) => {
 
 // PUT request handler for new crime incident
 app.put('/new-incident', (req, res) => {
+    console.log("PUT /new-incident");
     console.log(req.body); // uploaded data
 
-    res.status(200).type('txt').send('OK'); // <-- you may need to change this
+    // insert new case to database
+    // data fields
+    // case_number, date, time, code, incident, police_grid, neighborhood_number, block
+    let case_number = req.body.case_number;
+    let date_time = req.body.date + req.body.time;
+    let code = req.body.code;
+    let incident = req.body.incident;
+    let police_grid = req.body.police_grid;
+    let neighborhood_number = req.body.neighborhood_number;
+    let block = req.body.block;
+
+    let params = [];
+    params.push(case_number);
+    params.push(date_time);
+    params.push(code);
+    params.push(incident);
+    params.push(police_grid);
+    params.push(neighborhood_number);
+    params.push(block);
+
+    // query "insert into Incidents values (?, ?, ?, ?, ?, ?, ?);"
+    // INSERT INTO Incidents values (123, "2022-11-19", 600, "theft incident", 153, 15, "Summit");
+    let query = "INSERT INTO Incidents values (?, ?, ?, ?, ?, ?, ?);";
+
+    db.all(query, params, (err, rows) => {
+        console.log("Erros: " + err);
+        if (err == "Error: SQLITE_CONSTRAINT: UNIQUE constraint failed: Incidents.case_number") {
+            res.status(500).type('txt').send('Error 500: Case number already exists in the database');
+        } else {
+            res.status(200).type('txt').send('Insert OK');
+        }
+    })
 });
 
 // DELETE request handler for new crime incident
