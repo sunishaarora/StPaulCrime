@@ -3,23 +3,23 @@
     "version": "0.0.0",
     "description": "RESTful API Server using Node JS",
     "author": {
-        "name": "",
-        "email": ""
+        "name": "Aashish Bharath",
+        "email": "aashish.bharath@stthomas.edu"
     },
     "contributors": [
         {
-            "name": "",
-            "email": ""
+            "name": "Tina Trinh",
+            "email": "tina.trinh@stthomas.edu"
         },
         {
-            "name": "",
-            "email": ""
+            "name": "Sunisha Arora",
+            "email": "sunisha.arora@stthomas.edu"
         }
     ],
     "main": "server.js",
     "repository": {
         "type": "git",
-        "url": ""
+        "url": "https://github.com/AashishBharath/StPaulCrimeData.git"
     },
     "dependencies": {
         "express": "^4.18.2",

@@ -34,10 +34,16 @@ app.get('/codes', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
 
     if(Object.entries(req.query).length === 0){
+        data = databaseSelect('SELECT * FROM Codes', '');
+        console.log(data);
+        res.status(200).type('json').send(data);
+
+        /*
         db.all('SELECT * FROM Codes', (err, rows) => {
             //console.log(rows)
-            res.status(200).type('json').send(rows);
+            res.status(200).type('json').send(rows[]);
         });
+        */
     }else{
         res.status(200).type('json').send({}); // <-- you will need to change this
     }
@@ -49,7 +55,6 @@ app.get('/neighborhoods', (req, res) => {
 
     if(Object.entries(req.query).length === 0){
         db.all('SELECT * FROM Neighborhoods ORDER BY neighborhood_number', (err, rows) => {
-            //console.log(rows)
             res.status(200).type('json').send(rows);
         });
     }
@@ -62,7 +67,22 @@ app.get('/neighborhoods', (req, res) => {
 app.get('/incidents', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
 
+    if(Object.entries(req.query).length === 0){
+        db.all('SELECT * FROM Incidents ORDER BY date_time DESC', (err, rows) => {
+            for(let i = 0;i<rows.length;i++){
+                let dateTime = rows[i]['date_time'];
+                dateTime = dateTime.split("T");
+                delete rows[i]["date_time"];
+                rows[i]["date"] = dateTime[0];
+                rows[i]["time"] = dateTime[1];
+            }
+            
+            res.status(200).type('json').send(rows.slice(0,999));
+        });
+    }
+    else{
     res.status(200).type('json').send({}); // <-- you will need to change this
+    }
 });
 
 // PUT request handler for new crime incident
