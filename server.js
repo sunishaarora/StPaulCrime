@@ -34,18 +34,43 @@ app.get('/codes', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
 
     if(Object.entries(req.query).length === 0){
-        data = databaseSelect('SELECT * FROM Codes', '');
-        console.log(data);
-        res.status(200).type('json').send(data);
-
-        /*
         db.all('SELECT * FROM Codes', (err, rows) => {
             //console.log(rows)
-            res.status(200).type('json').send(rows[]);
-        });
-        */
+            res.status(200).type('json').send(rows);
+        }); 
+
     }else{
-        res.status(200).type('json').send({}); // <-- you will need to change this
+        if(Object.entries(req.query).length !== 0)  {
+            //console.log(req.query);
+            let split_codes = req.query['code'].split(',');
+            //console.log(split_codes);
+            var additional_queries = 'code = ';
+            for(let i = 0;i<split_codes.length;i++){
+                if(i===0){
+                    additional_queries += split_codes[i];
+                }
+                else{
+                    if(i==split_codes.length){
+                        additional_queries += ' code = ' + split_codes[i]; 
+                    }
+                    else{
+                        additional_queries += ' OR code = ' + split_codes[i]; 
+                    }
+                }
+            }
+            let main_query = 'SELECT * FROM Codes WHERE ' + additional_queries;
+            db.all(main_query, (err, rows) => {
+                if(err){
+                    console.log('Error');
+                }
+                else{
+                    //console.log(rows);
+                    res.status(200).type('json').send(rows);
+                }
+            });
+ 
+        }
+            res.status(200).type('json').send({}); // <-- you will need to change this
     }
 });
 
@@ -59,7 +84,38 @@ app.get('/neighborhoods', (req, res) => {
         });
     }
     else{
-    res.status(200).type('json').send({}); // <-- you will need to change this
+        if(Object.entries(req.query).length !== 0)  {
+            //console.log(req.query);
+            let split_ids = req.query['id'].split(',');
+            //console.log(split_codes);
+            var additional_queries = 'neighborhood_number = ';
+            for(let i = 0;i<split_ids.length;i++){
+                if(i===0){
+                    additional_queries += split_ids[i];
+                }
+                else{
+                    if(i==split_ids.length){
+                        additional_queries += ' neighborhood_number = ' + split_ids[i]; 
+                    }
+                    else{
+                        additional_queries += ' OR neighborhood_number = ' + split_ids[i]; 
+                    }
+                }
+            }
+            let main_query = 'SELECT * FROM Neighborhoods WHERE ' + additional_queries;
+            console.log(main_query);
+            db.all(main_query, (err, rows) => {
+                if(err){
+                    console.log('Error');
+                }
+                else{
+                    //console.log(rows);
+                    res.status(200).type('json').send(rows);
+                }
+            });
+ 
+        }
+        //res.status(200).type('json').send({}); // <-- you will need to change this
     }
 });
 
