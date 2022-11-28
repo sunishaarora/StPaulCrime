@@ -37,7 +37,7 @@ app.get('/codes', (req, res) => {
         db.all('SELECT * FROM Codes', (err, rows) => {
             //console.log(rows)
             res.status(200).type('json').send(rows);
-        }); 
+        });
 
     }else{
         if(Object.entries(req.query).length !== 0)  {
@@ -51,10 +51,10 @@ app.get('/codes', (req, res) => {
                 }
                 else{
                     if(i==split_codes.length){
-                        additional_queries += ' code = ' + split_codes[i]; 
+                        additional_queries += ' code = ' + split_codes[i];
                     }
                     else{
-                        additional_queries += ' OR code = ' + split_codes[i]; 
+                        additional_queries += ' OR code = ' + split_codes[i];
                     }
                 }
             }
@@ -68,7 +68,7 @@ app.get('/codes', (req, res) => {
                     res.status(200).type('json').send(rows);
                 }
             });
- 
+
         }
             res.status(200).type('json').send({}); // <-- you will need to change this
     }
@@ -95,10 +95,10 @@ app.get('/neighborhoods', (req, res) => {
                 }
                 else{
                     if(i==split_ids.length){
-                        additional_queries += ' neighborhood_number = ' + split_ids[i]; 
+                        additional_queries += ' neighborhood_number = ' + split_ids[i];
                     }
                     else{
-                        additional_queries += ' OR neighborhood_number = ' + split_ids[i]; 
+                        additional_queries += ' OR neighborhood_number = ' + split_ids[i];
                     }
                 }
             }
@@ -113,7 +113,7 @@ app.get('/neighborhoods', (req, res) => {
                     res.status(200).type('json').send(rows);
                 }
             });
- 
+
         }
         //res.status(200).type('json').send({}); // <-- you will need to change this
     }
@@ -132,12 +132,38 @@ app.get('/incidents', (req, res) => {
                 rows[i]["date"] = dateTime[0];
                 rows[i]["time"] = dateTime[1];
             }
-            
+
             res.status(200).type('json').send(rows.slice(0,999));
         });
     }
     else{
-    res.status(200).type('json').send({}); // <-- you will need to change this
+        // query: SELECT * FROM Incidents WHERE date(date_time) >= "2022-05-31" ORDER BY date_time DESC;
+        let query = 'SELECT * FROM Incidents ';
+        let clause = 'WHERE';
+
+        if (req.query.hasOwnProperty('start_date')) {
+            let start_date = req.query.start_date;
+            query += clause + ' date(date_time) >=' + " \"" + start_date + "\" ";
+            clause = 'AND';
+        }
+
+        if (req.query.hasOwnProperty('end_date')) {
+            let end_date = req.query.end_date;
+            query += clause + ' date(date_time) <=' + " \"" + end_date + "\" ";
+            clause = 'AND';
+        }
+
+        query += 'ORDER BY date_time DESC;';
+        console.log(query);
+
+        db.all(query, (err, rows) => {
+            if(err){
+                console.log('Error retrieving data');
+            }
+            else{
+                res.status(200).type('json').send(rows);
+            }
+        });
     }
 });
 
