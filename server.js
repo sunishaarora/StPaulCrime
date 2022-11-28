@@ -33,21 +33,112 @@ let db = new sqlite3.Database(db_filename, sqlite3.OPEN_READWRITE, (err) => {
 app.get('/codes', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
 
-    res.status(200).type('json').send({}); // <-- you will need to change this
+    if(Object.entries(req.query).length === 0){
+        db.all('SELECT * FROM Codes', (err, rows) => {
+            //console.log(rows)
+            res.status(200).type('json').send(rows);
+        }); 
+
+    }else{
+        if(Object.entries(req.query).length !== 0)  {
+            //console.log(req.query);
+            let split_codes = req.query['code'].split(',');
+            //console.log(split_codes);
+            var additional_queries = 'code = ';
+            for(let i = 0;i<split_codes.length;i++){
+                if(i===0){
+                    additional_queries += split_codes[i];
+                }
+                else{
+                    if(i==split_codes.length){
+                        additional_queries += ' code = ' + split_codes[i]; 
+                    }
+                    else{
+                        additional_queries += ' OR code = ' + split_codes[i]; 
+                    }
+                }
+            }
+            let main_query = 'SELECT * FROM Codes WHERE ' + additional_queries;
+            db.all(main_query, (err, rows) => {
+                if(err){
+                    console.log('Error');
+                }
+                else{
+                    //console.log(rows);
+                    res.status(200).type('json').send(rows);
+                }
+            });
+ 
+        }
+            res.status(200).type('json').send({}); // <-- you will need to change this
+    }
 });
 
 // GET request handler for neighborhoods
 app.get('/neighborhoods', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
 
-    res.status(200).type('json').send({}); // <-- you will need to change this
+    if(Object.entries(req.query).length === 0){
+        db.all('SELECT * FROM Neighborhoods ORDER BY neighborhood_number', (err, rows) => {
+            res.status(200).type('json').send(rows);
+        });
+    }
+    else{
+        if(Object.entries(req.query).length !== 0)  {
+            //console.log(req.query);
+            let split_ids = req.query['id'].split(',');
+            //console.log(split_codes);
+            var additional_queries = 'neighborhood_number = ';
+            for(let i = 0;i<split_ids.length;i++){
+                if(i===0){
+                    additional_queries += split_ids[i];
+                }
+                else{
+                    if(i==split_ids.length){
+                        additional_queries += ' neighborhood_number = ' + split_ids[i]; 
+                    }
+                    else{
+                        additional_queries += ' OR neighborhood_number = ' + split_ids[i]; 
+                    }
+                }
+            }
+            let main_query = 'SELECT * FROM Neighborhoods WHERE ' + additional_queries;
+            console.log(main_query);
+            db.all(main_query, (err, rows) => {
+                if(err){
+                    console.log('Error');
+                }
+                else{
+                    //console.log(rows);
+                    res.status(200).type('json').send(rows);
+                }
+            });
+ 
+        }
+        //res.status(200).type('json').send({}); // <-- you will need to change this
+    }
 });
 
 // GET request handler for crime incidents
 app.get('/incidents', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
 
+    if(Object.entries(req.query).length === 0){
+        db.all('SELECT * FROM Incidents ORDER BY date_time DESC', (err, rows) => {
+            for(let i = 0;i<rows.length;i++){
+                let dateTime = rows[i]['date_time'];
+                dateTime = dateTime.split("T");
+                delete rows[i]["date_time"];
+                rows[i]["date"] = dateTime[0];
+                rows[i]["time"] = dateTime[1];
+            }
+            
+            res.status(200).type('json').send(rows.slice(0,999));
+        });
+    }
+    else{
     res.status(200).type('json').send({}); // <-- you will need to change this
+    }
 });
 
 // PUT request handler for new crime incident
