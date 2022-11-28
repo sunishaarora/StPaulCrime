@@ -32,11 +32,12 @@ let db = new sqlite3.Database(db_filename, sqlite3.OPEN_READWRITE, (err) => {
 // GET request handler for crime codes
 app.get('/codes', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
-
+    var requested_data;
     if(Object.entries(req.query).length === 0){
         db.all('SELECT * FROM Codes', (err, rows) => {
-            //console.log(rows)
-            res.status(200).type('json').send(rows);
+            console.log("Data Received.")
+            requested_data = rows;
+            res.status(200).type('json').send(requested_data);
         });
 
     }else{
@@ -64,14 +65,15 @@ app.get('/codes', (req, res) => {
                     console.log('Error');
                 }
                 else{
-                    //console.log(rows);
+                    console.log("Data Received");
+                    //requested_data = rows;
                     res.status(200).type('json').send(rows);
                 }
             });
 
         }
-            res.status(200).type('json').send({}); // <-- you will need to change this
     }
+    //res.status(200).type('json').send(requested_data);
 });
 
 // GET request handler for neighborhoods
