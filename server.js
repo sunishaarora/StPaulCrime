@@ -163,9 +163,40 @@ app.get('/incidents', (req, res) => {
                 query += clause + ' code = ' + codes[i] + ' ';
             }
             query += ') ';
+            clause = 'AND';
         }
 
-        query += 'ORDER BY date_time DESC;';
+        if (req.query.hasOwnProperty('grid')) {
+            let grid = req.query.grid.split(',');
+            query += clause + ' ( ' + 'police_grid = ' + grid[0] + ' ';
+            for (let i=1; i<grid.length; i++) {
+                clause = 'OR';
+                query += clause + ' police_grid = ' + grid[i] + ' ';
+            }
+            query += ') ';
+            clause = 'AND';
+        }
+
+        if (req.query.hasOwnProperty('neighborhood')) {
+            let neighborhoods = req.query.neighborhood.split(',');
+            query += clause + ' ( ' + 'neighborhood_number = ' + neighborhoods[0] + ' ';
+            for (let i=1; i<neighborhoods.length; i++) {
+                clause = 'OR';
+                query += clause + ' neighborhood_number = ' + neighborhoods[i] + ' ';
+            }
+            query += ') ';
+            clause = 'AND';
+        }
+
+        query += 'ORDER BY date_time DESC';
+
+        if (req.query.hasOwnProperty('limit')) {
+            let limit = req.query.limit;
+            query += ' LIMIT ' + limit;
+        }
+
+        query += ';';
+
         console.log(query);
 
         db.all(query, (err, rows) => {
@@ -221,9 +252,27 @@ app.put('/new-incident', (req, res) => {
 
 // DELETE request handler for new crime incident
 app.delete('/remove-incident', (req, res) => {
-    console.log(req.body); // uploaded data
 
-    res.status(200).type('txt').send('OK'); // <-- you may need to change this
+    let case_number = req.query.case_number;
+    
+    let query = "SELECT * FROM Incidents where case_number = " + case_number;
+    let params = [];
+
+    db.all(query, params, (err, rows) => {
+        if (rows.length == 0) {
+            res.status(500).type('txt').send('Error 500: Case number does not exist in the database');
+        } else {
+            query = "DELETE FROM Incidents where case_number = " + case_number;
+            db.all(query, params, (err, rows) => {
+                if(err) {
+                    res.status(500).type('txt').send('Delete FAILED');
+                } else {
+                    res.status(200).type('txt').send('Delete OK');
+                }
+            })
+            
+        }
+    })
 });
 
 
