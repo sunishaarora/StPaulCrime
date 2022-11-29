@@ -163,9 +163,40 @@ app.get('/incidents', (req, res) => {
                 query += clause + ' code = ' + codes[i] + ' ';
             }
             query += ') ';
+            clause = 'AND';
         }
 
-        query += 'ORDER BY date_time DESC;';
+        if (req.query.hasOwnProperty('grid')) {
+            let grid = req.query.grid.split(',');
+            query += clause + ' ( ' + 'police_grid = ' + grid[0] + ' ';
+            for (let i=1; i<grid.length; i++) {
+                clause = 'OR';
+                query += clause + ' police_grid = ' + grid[i] + ' ';
+            }
+            query += ') ';
+            clause = 'AND';
+        }
+
+        if (req.query.hasOwnProperty('neighborhood')) {
+            let neighborhoods = req.query.neighborhood.split(',');
+            query += clause + ' ( ' + 'neighborhood_number = ' + neighborhoods[0] + ' ';
+            for (let i=1; i<neighborhoods.length; i++) {
+                clause = 'OR';
+                query += clause + ' neighborhood_number = ' + neighborhoods[i] + ' ';
+            }
+            query += ') ';
+            clause = 'AND';
+        }
+
+        query += 'ORDER BY date_time DESC';
+
+        if (req.query.hasOwnProperty('limit')) {
+            let limit = req.query.limit;
+            query += ' LIMIT ' + limit;
+        }
+
+        query += ';';
+
         console.log(query);
 
         db.all(query, (err, rows) => {
