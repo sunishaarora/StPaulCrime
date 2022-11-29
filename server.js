@@ -155,6 +155,16 @@ app.get('/incidents', (req, res) => {
             clause = 'AND';
         }
 
+        if (req.query.hasOwnProperty('code')) {
+            let codes = req.query.code.split(',');
+            query += clause + ' ( ' + 'code = ' + codes[0] + ' ';
+            for (let i=1; i<codes.length; i++) {
+                clause = 'OR';
+                query += clause + ' code = ' + codes[i] + ' ';
+            }
+            query += ') ';
+        }
+
         query += 'ORDER BY date_time DESC;';
         console.log(query);
 
@@ -174,8 +184,6 @@ app.put('/new-incident', (req, res) => {
     console.log("PUT /new-incident");
     console.log(req.body); // uploaded data
 
-    // insert new case to database
-    // data fields
     // case_number, date, time, code, incident, police_grid, neighborhood_number, block
     let case_number = req.body.case_number;
     let date_time = req.body.date + req.body.time;
@@ -199,7 +207,10 @@ app.put('/new-incident', (req, res) => {
     let query = "INSERT INTO Incidents values (?, ?, ?, ?, ?, ?, ?);";
 
     db.all(query, params, (err, rows) => {
-        console.log("Erros: " + err);
+        if (err) {
+            console.log(err);
+        }
+
         if (err == "Error: SQLITE_CONSTRAINT: UNIQUE constraint failed: Incidents.case_number") {
             res.status(500).type('txt').send('Error 500: Case number already exists in the database');
         } else {
