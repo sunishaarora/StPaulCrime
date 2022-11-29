@@ -173,7 +173,7 @@ app.get('/incidents', (req, res) => {
                 console.log('Error retrieving data');
             }
             else{
-                res.status(200).type('json').send(rows);
+                res.status(200).type('json').send(rows.slice(0,999));
             }
         });
     }
