@@ -221,9 +221,27 @@ app.put('/new-incident', (req, res) => {
 
 // DELETE request handler for new crime incident
 app.delete('/remove-incident', (req, res) => {
-    console.log(req.body); // uploaded data
 
-    res.status(200).type('txt').send('OK'); // <-- you may need to change this
+    let case_number = req.query.case_number;
+    
+    let query = "SELECT * FROM Incidents where case_number = " + case_number;
+    let params = [];
+
+    db.all(query, params, (err, rows) => {
+        if (rows.length == 0) {
+            res.status(500).type('txt').send('Error 500: Case number does not exist in the database');
+        } else {
+            query = "DELETE FROM Incidents where case_number = " + case_number;
+            db.all(query, params, (err, rows) => {
+                if(err) {
+                    res.status(500).type('txt').send('Delete FAILED');
+                } else {
+                    res.status(200).type('txt').send('Delete OK');
+                }
+            })
+            
+        }
+    })
 });
 
 
