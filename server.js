@@ -272,7 +272,7 @@ app.put('/new-incident', (req, res) => {
 // DELETE request handler for new crime incident
 app.delete('/remove-incident', (req, res) => {
 
-    let case_number = req.query.case_number;
+    let case_number = req.body.case_number;
 
     let query = "SELECT * FROM Incidents where case_number = " + case_number;
     let params = [];
