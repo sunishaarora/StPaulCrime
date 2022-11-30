@@ -204,6 +204,14 @@ app.get('/incidents', (req, res) => {
                 console.log('Error retrieving data');
             }
             else{
+                for(let i = 0;i<rows.length;i++){
+                    let dateTime = rows[i]['date_time'];
+                    dateTime = dateTime.split("T");
+                    delete rows[i]["date_time"];
+                    rows[i]["date"] = dateTime[0];
+                    rows[i]["time"] = dateTime[1];
+                }
+
                 res.status(200).type('json').send(rows.slice(0,999));
             }
         });
@@ -217,44 +225,48 @@ app.put('/new-incident', (req, res) => {
 
     // case_number, date, time, code, incident, police_grid, neighborhood_number, block
     let case_number = req.body.case_number;
-    let date_time = req.body.date + req.body.time;
+    let date_time = req.body.date + 'T' + req.body.time;
     let code = req.body.code;
     let incident = req.body.incident;
     let police_grid = req.body.police_grid;
     let neighborhood_number = req.body.neighborhood_number;
     let block = req.body.block;
 
-    let params = [];
-    params.push(case_number);
-    params.push(date_time);
-    params.push(code);
-    params.push(incident);
-    params.push(police_grid);
-    params.push(neighborhood_number);
-    params.push(block);
+    if (case_number == undefined || req.body.date == undefined || req.body.time == undefined || code == undefined || incident == undefined || police_grid == undefined || neighborhood_number == undefined || block == undefined) {
+        res.status(500).type('txt').send('Error: Missing data fields');
+    } else {
+        let params = [];
+        params.push(case_number);
+        params.push(date_time);
+        params.push(code);
+        params.push(incident);
+        params.push(police_grid);
+        params.push(neighborhood_number);
+        params.push(block);
 
-    // query "insert into Incidents values (?, ?, ?, ?, ?, ?, ?);"
-    // INSERT INTO Incidents values (123, "2022-11-19", 600, "theft incident", 153, 15, "Summit");
-    let query = "INSERT INTO Incidents values (?, ?, ?, ?, ?, ?, ?);";
+        // query "insert into Incidents values (?, ?, ?, ?, ?, ?, ?);"
+        // INSERT INTO Incidents values (123, "2022-11-19", 600, "theft incident", 153, 15, "Summit");
+        let query = "INSERT INTO Incidents values (?, ?, ?, ?, ?, ?, ?);";
 
-    db.all(query, params, (err, rows) => {
-        if (err) {
-            console.log(err);
-        }
+        db.all(query, params, (err, rows) => {
+            if (err) {
+                console.log(err);
+            }
 
-        if (err == "Error: SQLITE_CONSTRAINT: UNIQUE constraint failed: Incidents.case_number") {
-            res.status(500).type('txt').send('Error 500: Case number already exists in the database');
-        } else {
-            res.status(200).type('txt').send('Insert OK');
-        }
-    })
+            if (err == "Error: SQLITE_CONSTRAINT: UNIQUE constraint failed: Incidents.case_number") {
+                res.status(500).type('txt').send('Error 500: Case number already exists in the database');
+            } else {
+                res.status(200).type('txt').send('Insert OK');
+            }
+        })
+    }
 });
 
 // DELETE request handler for new crime incident
 app.delete('/remove-incident', (req, res) => {
 
     let case_number = req.query.case_number;
-    
+
     let query = "SELECT * FROM Incidents where case_number = " + case_number;
     let params = [];
 
@@ -270,7 +282,7 @@ app.delete('/remove-incident', (req, res) => {
                     res.status(200).type('txt').send('Delete OK');
                 }
             })
-            
+
         }
     })
 });
