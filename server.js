@@ -126,8 +126,8 @@ app.get('/incidents', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
 
     if(Object.entries(req.query).length === 0){
-        db.all('SELECT * FROM Incidents ORDER BY date_time DESC', (err, rows) => {
-            rows = rows.slice(0,1000);
+        db.all('SELECT * FROM Incidents ORDER BY date_time DESC LIMIT 1000', (err, rows) => {
+            //rows = rows.slice(0,1000);
 
             for(let i = 0;i<rows.length;i++){
                 let dateTime = rows[i]['date_time'];
@@ -196,8 +196,11 @@ app.get('/incidents', (req, res) => {
             let limit = req.query.limit;
             query += ' LIMIT ' + limit;
         }
+        else{
+            query += ' LIMIT 1000'
+        }
 
-        query += ';';
+        //query += ';';
 
         console.log(query);
 
