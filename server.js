@@ -127,6 +127,8 @@ app.get('/incidents', (req, res) => {
 
     if(Object.entries(req.query).length === 0){
         db.all('SELECT * FROM Incidents ORDER BY date_time DESC', (err, rows) => {
+            rows = rows.slice(0,1000);
+
             for(let i = 0;i<rows.length;i++){
                 let dateTime = rows[i]['date_time'];
                 dateTime = dateTime.split("T");
@@ -135,7 +137,7 @@ app.get('/incidents', (req, res) => {
                 rows[i]["time"] = dateTime[1];
             }
 
-            res.status(200).type('json').send(rows.slice(0,999));
+            res.status(200).type('json').send(rows);
         });
     }
     else{
@@ -204,6 +206,8 @@ app.get('/incidents', (req, res) => {
                 console.log('Error retrieving data');
             }
             else{
+                rows = rows.slice(0,1000);
+
                 for(let i = 0;i<rows.length;i++){
                     let dateTime = rows[i]['date_time'];
                     dateTime = dateTime.split("T");
@@ -212,7 +216,7 @@ app.get('/incidents', (req, res) => {
                     rows[i]["time"] = dateTime[1];
                 }
 
-                res.status(200).type('json').send(rows.slice(0,999));
+                res.status(200).type('json').send(rows);
             }
         });
     }
