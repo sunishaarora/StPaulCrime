@@ -5,16 +5,20 @@ let path = require('path');
 // NPM modules
 let express = require('express');
 let sqlite3 = require('sqlite3');
+let public_dir = path.join(__dirname, 'public');
 
 
 let db_filename = path.join(__dirname, 'db', 'stpaul_crime.sqlite3');
 
 let app = express();
 let port = 8000;
-
+let cors = require('cors');
+// ...
+app.use(cors());
+app.use(express.static(public_dir));
 app.use(express.json());
 
-// Open SQLite3 database (in read-only mode)
+// Open SQLite3 database (in read-only mode)s
 let db = new sqlite3.Database(db_filename, sqlite3.OPEN_READWRITE, (err) => {
     if (err) {
         console.log('Error opening ' + path.basename(db_filename));
