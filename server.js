@@ -161,6 +161,18 @@ app.get('/incidents', (req, res) => {
             clause = 'AND';
         }
 
+        if (req.query.hasOwnProperty('start_time')) {
+            let start_time = req.query.start_time;
+            query += clause + ' time(date_time) >=' + " \"" + start_time + "\" ";
+            clause = 'AND';
+        }
+
+        if (req.query.hasOwnProperty('end_time')) {
+            let end_time = req.query.end_time;
+            query += clause + ' time(date_time) <=' + " \"" + end_time + "\" ";
+            clause = 'AND';
+        }
+
         if (req.query.hasOwnProperty('code')) {
             let codes = req.query.code.split(',');
             query += clause + ' ( ' + 'code = ' + codes[0] + ' ';
@@ -213,8 +225,6 @@ app.get('/incidents', (req, res) => {
                 console.log('Error retrieving data');
             }
             else{
-                //rows = rows.slice(0,1000);
-
                 for(let i = 0;i<rows.length;i++){
                     let dateTime = rows[i]['date_time'];
                     dateTime = dateTime.split("T");
@@ -260,14 +270,12 @@ app.put('/new-incident', (req, res) => {
         let query = "INSERT INTO Incidents values (?, ?, ?, ?, ?, ?, ?);";
 
         db.all(query, params, (err, rows) => {
-            if (err) {
-                console.log(err);
-            }
-
             if (err == "Error: SQLITE_CONSTRAINT: UNIQUE constraint failed: Incidents.case_number") {
-                res.status(500).type('txt').send('Error 500: Case number already exists in the database');
+                res.status(500).type('txt').send('Error 500: Case number already exists in the database. Please try again and choose a unique case number.');
+            } else if (err) {
+                res.status(500).type('txt').send('Error 500: Something went wrong');
             } else {
-                res.status(200).type('txt').send('Insert OK');
+                res.status(200).type('txt').send('Submit new incident successfully');
             }
         })
     }
