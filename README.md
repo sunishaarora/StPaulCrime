@@ -7,7 +7,7 @@ This full stack web app uses Node.js, Express.js, and sqlite3 for building the b
 
 To run the app locally: 
 - Make sure you have Node.js and the npm command-line interface installed
-- In your terminal, clone the repository to your desired directory `git clone https://github.com/AashishBharath/StPaulCrimeData.git`
+- In your terminal, clone the repository to your desired directory `git clone https://github.com/sunishaarora/StPaulCrimeData.git`
 - Move into project directory `cd StPaulCrimeData`
 - `npm install`
 - `node server.js`
